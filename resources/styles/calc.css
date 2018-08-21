@@ -1,0 +1,130 @@
+* {
+    main-color: #D9E4F1;
+
+    button-border-color: #1E395B;
+    button-light-color: #E3EBF3;
+    button-dark-color: #D5E0ED;
+
+    button-border-color-hover: #FFDB00;
+    button-light1-color-hover: #FFF2E4;
+    button-light2-color-hover: #FFE3C5;
+    button-dark1-color-hover: #FFD16F;
+    button-dark2-color-hover: #FFFFD6;
+
+    button-border-color-pressed: #C29B29;
+    button-light-color-pressed: #F5C77A;
+    button-dark1-color-pressed: #F5BE5A;
+    button-dark2-color-pressed: #F2F2B2;
+
+    button-mem-color: #D4E0ED;
+    button-mem-color-hover: #FFCE68;
+
+    button-num-light-color: #F7FBFF;
+    button-num-dark-color: #E7EDF5;
+}
+
+.root {
+    -fx-background-color: main-color;
+    -fx-padding: 0 0 10 0;
+}
+
+.display {
+    -fx-min-height: 75;
+    -fx-max-height: 75;
+    -fx-min-width: 284;
+    -fx-max-width: 284;
+    -fx-border-width: 1;
+    -fx-border-style: solid;
+    -fx-border-color: button-border-color;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-background-color: linear-gradient(to bottom, main-color 1%, white 99%);
+    -fx-padding: 0 5;
+}
+
+.button {
+    -fx-text-fill: button-border-color;
+    -fx-font-size: 18;
+    -fx-padding: 0;
+    -fx-border-color: button-border-color;
+    -fx-border-radius: 5;
+    -fx-border-insets: -2;
+    -fx-border-width: 0.5;
+    -fx-background-radius: 5;
+    -fx-background-color: linear-gradient(button-light-color 50%, button-dark-color 50%);
+}
+
+.button:hover {
+    -fx-border-color: button-border-color-hover, white;
+    -fx-border-width: 2, 1;
+    -fx-border-insets: -1, 0;
+    -fx-border-style: solid centered, solid centered;
+    -fx-background-color: linear-gradient(to bottom,
+        button-light1-color-hover, button-light2-color-hover 50%,
+        button-dark1-color-hover 50%, button-dark2-color-hover
+    );
+}
+
+.button:pressed {
+    -fx-border-width: 1;
+    -fx-border-color: button-border-color-pressed;
+    -fx-background-color: linear-gradient(to bottom,
+        button-light-color-pressed 50%,
+        button-dark1-color-pressed 50%,
+        button-dark2-color-pressed
+    );
+
+    -fx-scale-y: 0.98;
+    -fx-scale-x: 0.98;
+}
+
+.button-num {
+    -fx-font-size: 24;
+    -fx-background-color: linear-gradient(button-num-light-color, button-num-dark-color, button-num-light-color);
+}
+
+.button-mem {
+    -fx-border-color: button-border-color, white;
+    -fx-border-width: 1, 1;
+    -fx-border-insets: -2, -1;
+    -fx-border-style: solid centered, solid centered;
+    -fx-background-color: button-mem-color;
+}
+
+.button-mem:hover {
+    -fx-border-color: button-border-color-hover, white;
+    -fx-border-width: 1, 1;
+    -fx-border-insets: -2, -1;
+    -fx-background-color: linear-gradient(to bottom, button-mem-color-hover 60%, white);
+}
+
+.button-mem:pressed {
+    -fx-border-width: 1;
+    -fx-border-color: button-border-color-pressed;
+    -fx-background-color: linear-gradient(to bottom,
+    button-light-color-pressed 50%,
+    button-dark1-color-pressed 50%,
+    button-dark2-color-pressed
+    );
+
+    -fx-scale-y: 0.98;
+    -fx-scale-x: 0.98;
+}
+
+.button-mult {
+    -fx-padding: 0 0 -8 0;
+}
+
+.button-eq {
+    -fx-font-size: 32;
+    -fx-min-height: 86;
+}
+
+.button-bs {
+    -fx-font-size: 32;
+    -fx-padding: -5 0 0 0;
+}
+
+.button-z {
+    -fx-min-width: 106;
+}

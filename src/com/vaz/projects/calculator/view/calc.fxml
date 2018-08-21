@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="400.0" prefWidth="300.0" spacing="10.0"
+      alignment="BOTTOM_CENTER" styleClass="root"
+      stylesheets="@/styles/calc.css"
+      xmlns="http://javafx.com/javafx/8.0.172"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.vaz.projects.calculator.controller.Controller">
+
+    <fx:define>
+        <Font fx:id="SUPERSCRIPT" size="16"/>
+        <Font fx:id="OUTPUT" size="36"/>
+    </fx:define>
+
+    <StackPane styleClass="display">
+        <Text fx:id="superscript" font="$SUPERSCRIPT" wrappingWidth="240" textAlignment="RIGHT"
+              StackPane.alignment="TOP_RIGHT"/>
+        <Text fx:id="output" font="$OUTPUT" wrappingWidth="240" textAlignment="RIGHT" text="0"
+              StackPane.alignment="BOTTOM_RIGHT"/>
+    </StackPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <fx:include source="common_button.fxml" text="MC" styleClass="button-mem" onAction="#processMemory"/>
+        <fx:include source="common_button.fxml" text="MR" styleClass="button-mem" onAction="#processMemory"/>
+        <fx:include source="common_button.fxml" text="MS" styleClass="button-mem" onAction="#processMemory"/>
+        <fx:include source="common_button.fxml" text="M+" styleClass="button-mem" onAction="#processMemory"/>
+        <fx:include source="common_button.fxml" text="M-" styleClass="button-mem" onAction="#processMemory"/>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <fx:include source="common_button.fxml" text="&#x2B05;" styleClass="button-bs" onAction="#processClear"/>
+        <fx:include source="common_button.fxml" text="CE" onAction="#processClear"/>
+        <fx:include source="common_button.fxml" text="C" onAction="#processClear"/>
+        <fx:include source="common_button.fxml" text="&#x00B1;" onAction="#processOperator"/>
+        <fx:include source="common_button.fxml" text="&#x221A;" onAction="#processNumberTransform"/>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <fx:include source="common_button.fxml" text="7" styleClass="button-num" onAction="#processNumpad"/>
+        <fx:include source="common_button.fxml" text="8" styleClass="button-num" onAction="#processNumpad"/>
+        <fx:include source="common_button.fxml" text="9" styleClass="button-num" onAction="#processNumpad"/>
+        <fx:include source="common_button.fxml" text="/" onAction="#processOperator"/>
+        <fx:include source="common_button.fxml" text="\%" onAction="#processOperator"/>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <fx:include source="common_button.fxml" text="4" styleClass="button-num" onAction="#processNumpad"/>
+        <fx:include source="common_button.fxml" text="5" styleClass="button-num" onAction="#processNumpad"/>
+        <fx:include source="common_button.fxml" text="6" styleClass="button-num" onAction="#processNumpad"/>
+        <fx:include source="common_button.fxml" text="*" styleClass="button-mult" onAction="#processOperator"/>
+        <fx:include source="common_button.fxml" text="1/x" onAction="#processNumberTransform"/>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <VBox spacing="10">
+            <HBox spacing="10">
+                <fx:include source="common_button.fxml" text="1" styleClass="button-num" onAction="#processNumpad"/>
+                <fx:include source="common_button.fxml" text="2" styleClass="button-num" onAction="#processNumpad"/>
+                <fx:include source="common_button.fxml" text="3" styleClass="button-num" onAction="#processNumpad"/>
+                <fx:include source="common_button.fxml" text="-" onAction="#processOperator"/>
+            </HBox>
+            <HBox spacing="10">
+                <fx:include source="common_button.fxml" text="0" styleClass="button-z, button-num" onAction="#processNumpad"/>
+                <fx:include source="common_button.fxml" text="." styleClass="button-num" onAction="#processNumpad"/>
+                <fx:include source="common_button.fxml" text="+" onAction="#processOperator"/>
+            </HBox>
+        </VBox>
+        <fx:include source="common_button.fxml" text="=" styleClass="button-eq" onAction="#processOperator"/>
+    </HBox>
+</VBox>

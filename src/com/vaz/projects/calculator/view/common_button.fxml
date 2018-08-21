@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+
+<Button
+        stylesheets="@/styles/calc.css"
+        minWidth="48"
+        maxWidth="48"
+        minHeight="38"
+        maxHeight="38"
+        styleClass="button"
+/>
