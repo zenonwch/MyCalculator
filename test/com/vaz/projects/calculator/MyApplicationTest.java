@@ -2,10 +2,12 @@ package com.vaz.projects.calculator;
 
 import com.vaz.projects.calculator.controller.Controller;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.testfx.framework.junit5.ApplicationTest;
 
@@ -31,11 +33,16 @@ public class MyApplicationTest extends ApplicationTest {
         stage.getScene().getStylesheets().add(STYLESHEET);
         stage.show();
 
+        // Test application will appear on the top right conner of the screen
+        final Rectangle2D visibleScreen = Screen.getPrimary().getVisualBounds();
+        stage.setX(visibleScreen.getWidth() - stage.getWidth() - 10);
+        stage.setY(10);
+
         controller = loader.getController();
     }
 
     /* Just a shortcut to retrieve widgets in the GUI. */
-    protected <T extends Node> T find(final String query) {
+    protected <T extends Node> T find(@SuppressWarnings("SameParameterValue") final String query) {
         /* TestFX provides many operations to retrieve elements from the loaded GUI. */
         return lookup(query).query();
     }

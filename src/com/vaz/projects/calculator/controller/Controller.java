@@ -26,8 +26,9 @@ public class Controller {
 
     private BigDecimal leftOperand = BigDecimal.ZERO;
     private BigDecimal rightOperand = BigDecimal.ZERO;
+    private BigDecimal currentNumber = BigDecimal.ZERO;
     private Operator lastOperator = Eq;
-    private Operator mathOperator;
+    private Operator prevMathOperator;
     private boolean newNumber = true;
     private boolean wasError;
 
@@ -67,6 +68,7 @@ public class Controller {
             return;
         }
 
+        updateCurrentNumber();
         final Operator op = getOperator(event);
 
         if (Eq == op) {
@@ -75,14 +77,17 @@ public class Controller {
             processPercent();
         } else if (Neg == op) {
             processNegate();
-            lastOperator = Neg;
-            return;
         } else {
             processMathOperator(op);
         }
 
-        lastOperator = op;
-        newNumber = true;
+        if (Neg != op) {
+            newNumber = true;
+        }
+
+        if (!wasError) {
+            setOutputText(currentNumber);
+        }
     }
 
     @FXML
@@ -91,25 +96,18 @@ public class Controller {
             return;
         }
 
-        lastOperator = getOperator(event);
-
-        if (!newNumber) {
-            final String existingOutput = output.getText();
-            rightOperand = new BigDecimal(existingOutput);
-        }
+        updateCurrentNumber();
+        final Operator op = getOperator(event);
 
         try {
-            rightOperand = new BigDecimal(Model.transform(rightOperand, lastOperator));
+            currentNumber = new BigDecimal(Model.transform(currentNumber, op));
         } catch (final ArithmeticException e) {
             processError(e);
             return;
         }
 
-        setOutputText(rightOperand);
-
-        if (Neg != lastOperator) {
-            newNumber = true;
-        }
+        newNumber = true;
+        setOutputText(currentNumber);
     }
 
     @FXML
@@ -125,11 +123,11 @@ public class Controller {
     void processClear(final ActionEvent event) {
         final Operator op = getOperator(event);
         String currentText = output.getText();
-        final int currentTextLenght = currentText.length();
+        final int currentTextLength = currentText.length();
 
         if (op == Bs && !wasError) {
-            if (!newNumber && currentTextLenght > 1) {
-                currentText = currentText.substring(0, currentTextLenght - 1);
+            if (!newNumber && currentTextLength > 1) {
+                currentText = currentText.substring(0, currentTextLength - 1);
                 setOutputText(currentText);
             } else {
                 reset();
@@ -138,73 +136,76 @@ public class Controller {
 
         if (op == CE) {
             rightOperand = BigDecimal.ZERO;
+            currentNumber = BigDecimal.ZERO;
             reset();
         }
 
         if (op == C) {
             leftOperand = BigDecimal.ZERO;
             rightOperand = BigDecimal.ZERO;
-            mathOperator = null;
+            currentNumber = BigDecimal.ZERO;
+            prevMathOperator = null;
             lastOperator = Eq;
             reset();
         }
     }
 
     private void processEquals() {
-        final String existingOutput = output.getText();
-
-        if (!newNumber) {
-            rightOperand = new BigDecimal(existingOutput);
-        }
-
-        if (mathOperator == null) {
-            leftOperand = new BigDecimal(existingOutput);
-            setOutputText(leftOperand);
+        if (prevMathOperator == null) {
+            leftOperand = currentNumber;
             newNumber = true;
             return;
         }
 
+        if (lastOperator == Eq) {
+            leftOperand = currentNumber;
+        } else {
+            rightOperand = currentNumber;
+        }
+
         try {
-            leftOperand = new BigDecimal(Model.calculate(leftOperand, rightOperand, mathOperator));
-            setOutputText(leftOperand);
+            leftOperand = new BigDecimal(Model.calculate(leftOperand, rightOperand, prevMathOperator));
+            currentNumber = leftOperand;
         } catch (final ArithmeticException e) {
             processError(e);
         }
+
+        lastOperator = Eq;
     }
 
     private void processPercent() {
-        final String percOperand = output.getText();
-        rightOperand = new BigDecimal(Model.calculate(leftOperand, new BigDecimal(percOperand), Perc));
-        setOutputText(rightOperand);
+        currentNumber = new BigDecimal(Model.calculate(leftOperand, currentNumber, Perc));
+        lastOperator = Perc;
     }
 
     private void processNegate() {
-        final String existingOutput = output.getText();
-        final BigDecimal negatedOutput = new BigDecimal(existingOutput).negate();
-        setOutputText(negatedOutput);
+        currentNumber = currentNumber.negate();
     }
 
     private void processMathOperator(final Operator op) {
         if (lastOperator.isMathOperator() && newNumber) {
-            mathOperator = op;
+            prevMathOperator = op;
             return;
         }
 
+        rightOperand = lastOperator == Eq && newNumber
+                ? leftOperand
+                : currentNumber;
+
+        leftOperand = lastOperator == Eq || prevMathOperator == null
+                ? currentNumber
+                : new BigDecimal(Model.calculate(leftOperand, rightOperand, prevMathOperator));
+
+        currentNumber = leftOperand;
+        prevMathOperator = op;
+        lastOperator = prevMathOperator;
+    }
+
+    private void updateCurrentNumber() {
         if (!newNumber) {
             final String existingOutput = output.getText();
-            rightOperand = new BigDecimal(existingOutput);
+            currentNumber = new BigDecimal(existingOutput);
         }
-
-        if (lastOperator == Eq && newNumber) {
-            rightOperand = leftOperand;
-        }
-
-        leftOperand = (mathOperator == null || lastOperator == Eq || lastOperator.isTransformOperator())
-                ? rightOperand
-                : new BigDecimal(Model.calculate(leftOperand, rightOperand, mathOperator));
-
-        mathOperator = op;
-        setOutputText(leftOperand);
     }
 
     private void processError(final Exception e) {

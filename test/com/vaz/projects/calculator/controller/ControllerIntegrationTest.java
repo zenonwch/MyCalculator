@@ -115,7 +115,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
     }
 
     @Test
-    @DisplayName("Fractionsl number shoud contain only one dot")
+    @DisplayName("Fractional number should contain one dot only")
     void testOneDecimalPoint() {
         clickButtonSequence(buttonDot, buttonDot);
         assertEquals("0.", getOutputText());
@@ -273,8 +273,25 @@ class ControllerIntegrationTest extends MyApplicationTest {
     }
 
     @Test
-    @DisplayName("Bunch of simple substractions")
-    void testSimpleSubstraction() {
+    @DisplayName("2 + 5 = 7 -> 3 = 8 = 13 -> 4 = 9 = 14")
+    void testComplexComputation_2() {
+        clickButtonSequence(button2, buttonAdd, button5,
+                buttonEq, button3, buttonEq);
+        assertEquals("8", getOutputText());
+
+        clickOn(buttonEq);
+        assertEquals("13", getOutputText());
+
+        clickButtonSequence(button4, buttonEq);
+        assertEquals("9", getOutputText());
+
+        clickOn(buttonEq);
+        assertEquals("14", getOutputText());
+    }
+
+    @Test
+    @DisplayName("Bunch of simple subtractions")
+    void testSimpleSubtraction() {
         clickButtonSequence(buttonSub, button9, buttonEq);
         assertEquals("-9", getOutputText());
 
@@ -290,7 +307,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
     @Test
     @DisplayName("-9999999999999999 - 9999999999999999 = -2.e+16")
-    void testSimpleSubstraction_MaxValues() {
+    void testSimpleSubtraction_MaxValues() {
         clickOn(buttonSub);
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 3);
         clickOn(buttonEq);
@@ -304,7 +321,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
     @Test
     @DisplayName("20 + 5 - 9 - 1 + 5 = 20")
-    void testComplexSubstraction() {
+    void testComplexSubtraction() {
         clickButtonSequence(
                 button2, button0,
                 buttonAdd, button5,
@@ -561,7 +578,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
     @Test
     @DisplayName("sqrt(0.9999999999999999) = 0.9999999999999999")
-    void testSqureRoot_FractValue() {
+    void testSquareRoot_FractValue() {
         clickOn(buttonDot);
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER);
         clickOn(buttonSqrt);
@@ -641,7 +658,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
     @Test
     @DisplayName("20 - 3% = 19.4")
-    void testSubstractPercent() {
+    void testSubtractPercent() {
         clickButtonSequence(button2, button0, buttonSub, button3, buttonPerc, buttonEq);
         assertEquals("19.4", getOutputText());
     }
@@ -722,7 +739,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
     @Test
     @DisplayName("sqrt(-9) -> ArithmeticException")
-    void testProcessNumberTransform_SqrtForNegativValue() {
+    void testProcessNumberTransform_SqrtForNegativeValue() {
         clickButtonSequence(button9, buttonNeg, buttonSqrt);
 
         assertEquals("Invalid input", getOutputText());
@@ -735,9 +752,9 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
         final Set<Button> allButtons = findAllButtons();
         allButtons.forEach(button -> {
-            final String buttonLable = button.getText();
+            final String buttonLabel = button.getText();
 
-            if (!"C".equals(buttonLable) && !"CE".equals(buttonLable)) {
+            if (!"C".equals(buttonLabel) && !"CE".equals(buttonLabel)) {
                 clickOn(button);
                 assertEquals(ERR_UNDEFINED, getOutputText());
             }
