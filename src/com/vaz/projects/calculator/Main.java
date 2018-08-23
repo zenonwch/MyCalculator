@@ -33,6 +33,7 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root));
         primaryStage.setTitle(APP_NAME);
         primaryStage.getScene().getStylesheets().add(STYLESHEET);
+        primaryStage.getScene().setOnKeyPressed(controller::processKeyEvent);
 
         final MenuBar menuBar = new MenuBar();
         final Menu menuView = new Menu("View");

@@ -6,6 +6,7 @@ import com.vaz.projects.calculator.view.ViewHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 
 import java.math.BigDecimal;
@@ -31,6 +32,10 @@ public class Controller {
     private Operator prevMathOperator;
     private boolean newNumber = true;
     private boolean wasError;
+
+    public void processKeyEvent(final KeyEvent event) {
+
+    }
 
     @FXML
     void processNumpad(final ActionEvent event) {
