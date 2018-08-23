@@ -1,44 +1,33 @@
 package com.vaz.projects.calculator;
 
 import com.vaz.projects.calculator.controller.Controller;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.BeforeEach;
 import org.testfx.framework.junit5.ApplicationTest;
 
-import java.net.URL;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static com.vaz.projects.calculator.Main.GUI_FXML;
-import static com.vaz.projects.calculator.Main.STYLESHEET;
+import static com.vaz.projects.calculator.Main.CONTROLLER_PROPERTY;
 
 public class MyApplicationTest extends ApplicationTest {
-
     private Controller controller;
 
-    @Override
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    public void start(final Stage stage) throws Exception {
-        final URL resourceUrl = getClass().getResource("../" + GUI_FXML);
-        final FXMLLoader loader = new FXMLLoader(resourceUrl);
+    @BeforeEach
+    protected void setUp() throws Exception {
+        ApplicationTest.launch(Main.class);
 
-        final Parent root = loader.load();
-        stage.setScene(new Scene(root));
-        stage.getScene().getStylesheets().add(STYLESHEET);
-        stage.show();
+        final Stage stage = (Stage) findButton("0").getScene().getWindow();
+        controller = (Controller) stage.getProperties().get(CONTROLLER_PROPERTY);
 
         // Test application will appear on the top right conner of the screen
         final Rectangle2D visibleScreen = Screen.getPrimary().getVisualBounds();
         stage.setX(visibleScreen.getWidth() - stage.getWidth() - 10);
         stage.setY(10);
-
-        controller = loader.getController();
     }
 
     /* Just a shortcut to retrieve widgets in the GUI. */

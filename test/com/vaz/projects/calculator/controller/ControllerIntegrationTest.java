@@ -43,8 +43,11 @@ class ControllerIntegrationTest extends MyApplicationTest {
     private Button buttonDiv;
     private Button buttonEq;
 
+    @Override
     @BeforeEach
-    void setUp() {
+    protected void setUp() throws Exception {
+        super.setUp();
+
         button0 = findButton("0");
         button1 = findButton("1");
         button2 = findButton("2");
