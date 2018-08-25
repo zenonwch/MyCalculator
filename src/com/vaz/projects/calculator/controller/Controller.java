@@ -2,10 +2,12 @@ package com.vaz.projects.calculator.controller;
 
 import com.vaz.projects.calculator.model.Model;
 import com.vaz.projects.calculator.model.Operator;
+import com.vaz.projects.calculator.model.OperatorType;
 import com.vaz.projects.calculator.view.ViewHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 
@@ -13,11 +15,15 @@ import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 import static com.vaz.projects.calculator.model.Operator.*;
+import static com.vaz.projects.calculator.model.OperatorType.Clear;
+import static com.vaz.projects.calculator.model.OperatorType.Negate;
 import static com.vaz.projects.calculator.view.ViewHelper.resetView;
 
 public class Controller {
     private static final Pattern NON_DIGIT = Pattern.compile("^0\\.|\\.");
     public static final int MAX_DIGIT_NUMBER = 16;
+
+    private final Model model = new Model(this);
 
     @FXML
     private Text output;
@@ -25,16 +31,90 @@ public class Controller {
     @FXML
     private Text superscript;
 
-    private BigDecimal leftOperand = BigDecimal.ZERO;
-    private BigDecimal rightOperand = BigDecimal.ZERO;
-    private BigDecimal currentNumber = BigDecimal.ZERO;
-    private Operator lastOperator = Eq;
-    private Operator prevMathOperator;
     private boolean newNumber = true;
     private boolean wasError;
 
-    public void processKeyEvent(final KeyEvent event) {
+    public boolean isNewNumber() {
+        return newNumber;
+    }
 
+    public void processKeyEvent(final KeyEvent event) {
+        final KeyCode code = event.getCode();
+        final String keyText = event.getText();
+
+        if ("%".equals(keyText) || (event.isShiftDown() && code == KeyCode.DIGIT5)) {
+            processOperationEvent(new ActionEvent(new Button(Perc.getValue()), output));
+            return;
+        }
+
+        if (code == KeyCode.AT || "@".equals(keyText) || (event.isShiftDown() && code == KeyCode.DIGIT2)) {
+            processOperationEvent(new ActionEvent(new Button(Sqrt.getValue()), output));
+            return;
+        }
+
+        if (code.isDigitKey() || code == KeyCode.DECIMAL) {
+            processNumpad(new ActionEvent(new Button(keyText), output));
+            return;
+        }
+
+        if (event.isShiftDown() && code == KeyCode.EQUALS) {
+            processOperationEvent(new ActionEvent(new Button(Add.getValue()), output));
+            return;
+        }
+
+        if (code == KeyCode.ADD || code == KeyCode.DIVIDE || code == KeyCode.SUBTRACT
+                || code == KeyCode.MULTIPLY || code == KeyCode.EQUALS) {
+            processOperationEvent(new ActionEvent(new Button(keyText), output));
+            return;
+        }
+
+        if (code == KeyCode.ENTER) {
+            processOperationEvent(new ActionEvent(new Button(Eq.getValue()), output));
+            return;
+        }
+
+        if (code == KeyCode.F9) {
+            processOperationEvent(new ActionEvent(new Button(Neg.getValue()), output));
+            return;
+        }
+
+        if (code == KeyCode.R) {
+            processOperationEvent(new ActionEvent(new Button(Inv.getValue()), output));
+            return;
+        }
+
+        if (code == KeyCode.BACK_SPACE) {
+            processClear(Bs);
+            return;
+        }
+
+        if (code == KeyCode.DELETE) {
+            processClear(CE);
+            return;
+        }
+
+        if (code == KeyCode.ESCAPE) {
+            processClear(C);
+        }
+    }
+
+    @FXML
+    void processOperationEvent(final ActionEvent event) {
+        final Operator operator = getOperator(event);
+        final OperatorType operatorType = operator.getType();
+
+        if (wasError && operatorType != Clear) {
+            return;
+        }
+
+        updateCurrentNumber();
+
+        try {
+            processOperation(operator);
+            setOutputText(model.getCurrentNumber());
+        } catch (final ArithmeticException e) {
+            processError(e);
+        }
     }
 
     @FXML
@@ -67,66 +147,37 @@ public class Controller {
         newNumber = false;
     }
 
-    @FXML
-    void processOperator(final ActionEvent event) {
-        if (wasError) {
-            return;
+    private void processOperation(final Operator operator) {
+        switch (operator.getType()) {
+            case Equal:
+                model.processEqual();
+                break;
+            case Math:
+                model.processMathOperator(operator);
+                break;
+            case Transform:
+                model.processNumberTransform(operator);
+                break;
+            case Percent:
+                model.processPercent();
+                break;
+            case Negate:
+                model.processNegate();
+                break;
+            case Memory:
+                model.processMemory(operator);
+                break;
+            case Clear:
+                processClear(operator);
+                return;
         }
 
-        updateCurrentNumber();
-        final Operator op = getOperator(event);
-
-        if (Eq == op) {
-            processEquals();
-        } else if (Perc == op) {
-            processPercent();
-        } else if (Neg == op) {
-            processNegate();
-        } else {
-            processMathOperator(op);
-        }
-
-        if (Neg != op) {
+        if (operator.getType() != Negate) {
             newNumber = true;
         }
-
-        if (!wasError) {
-            setOutputText(currentNumber);
-        }
     }
 
-    @FXML
-    void processNumberTransform(final ActionEvent event) {
-        if (wasError) {
-            return;
-        }
-
-        updateCurrentNumber();
-        final Operator op = getOperator(event);
-
-        try {
-            currentNumber = new BigDecimal(Model.transform(currentNumber, op));
-        } catch (final ArithmeticException e) {
-            processError(e);
-            return;
-        }
-
-        newNumber = true;
-        setOutputText(currentNumber);
-    }
-
-    @FXML
-    void processMemory(final ActionEvent event) {
-        if (wasError) {
-            return;
-        }
-
-        System.out.println("Should work with memory");
-    }
-
-    @FXML
-    void processClear(final ActionEvent event) {
-        final Operator op = getOperator(event);
+    private void processClear(final Operator op) {
         String currentText = output.getText();
         final int currentTextLength = currentText.length();
 
@@ -135,81 +186,23 @@ public class Controller {
                 currentText = currentText.substring(0, currentTextLength - 1);
                 setOutputText(currentText);
             } else {
-                reset();
+                reset(false);
             }
         }
 
         if (op == CE) {
-            rightOperand = BigDecimal.ZERO;
-            currentNumber = BigDecimal.ZERO;
-            reset();
+            reset(false);
         }
 
         if (op == C) {
-            leftOperand = BigDecimal.ZERO;
-            rightOperand = BigDecimal.ZERO;
-            currentNumber = BigDecimal.ZERO;
-            prevMathOperator = null;
-            lastOperator = Eq;
-            reset();
+            reset(true);
         }
-    }
-
-    private void processEquals() {
-        if (prevMathOperator == null) {
-            leftOperand = currentNumber;
-            newNumber = true;
-            return;
-        }
-
-        if (lastOperator == Eq) {
-            leftOperand = currentNumber;
-        } else {
-            rightOperand = currentNumber;
-        }
-
-        try {
-            leftOperand = new BigDecimal(Model.calculate(leftOperand, rightOperand, prevMathOperator));
-            currentNumber = leftOperand;
-        } catch (final ArithmeticException e) {
-            processError(e);
-        }
-
-        lastOperator = Eq;
-    }
-
-    private void processPercent() {
-        currentNumber = new BigDecimal(Model.calculate(leftOperand, currentNumber, Perc));
-        lastOperator = Perc;
-    }
-
-    private void processNegate() {
-        currentNumber = currentNumber.negate();
-    }
-
-    private void processMathOperator(final Operator op) {
-        if (lastOperator.isMathOperator() && newNumber) {
-            prevMathOperator = op;
-            return;
-        }
-
-        rightOperand = lastOperator == Eq && newNumber
-                ? leftOperand
-                : currentNumber;
-
-        leftOperand = lastOperator == Eq || prevMathOperator == null
-                ? currentNumber
-                : new BigDecimal(Model.calculate(leftOperand, rightOperand, prevMathOperator));
-
-        currentNumber = leftOperand;
-        prevMathOperator = op;
-        lastOperator = prevMathOperator;
     }
 
     private void updateCurrentNumber() {
-        if (!newNumber) {
+        if (!newNumber && !wasError) {
             final String existingOutput = output.getText();
-            currentNumber = new BigDecimal(existingOutput);
+            model.updateCurrentNumber(new BigDecimal(existingOutput));
         }
     }
 
@@ -224,11 +217,16 @@ public class Controller {
     }
 
     private void setOutputText(final BigDecimal value) {
+        if (wasError) {
+            return;
+        }
+
         final String valueStr = ViewHelper.convertValueToStringRepresentation(value);
         setOutputText(valueStr);
     }
 
-    private void reset() {
+    private void reset(final boolean full) {
+        model.reset(full);
         wasError = false;
         newNumber = true;
         resetView(output);

@@ -3,69 +3,35 @@ package com.vaz.projects.calculator.model;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
+import static com.vaz.projects.calculator.model.OperatorType.*;
+import static com.vaz.projects.calculator.model.OperatorType.Math;
+
 @SuppressWarnings("MethodDoesntCallSuperMethod")
 public enum Operator {
-    Add("+") {
-        @Override
-        public boolean isMathOperator() {
-            return true;
-        }
-    },
-    Subst("-") {
-        @Override
-        public boolean isMathOperator() {
-            return true;
-        }
-    },
-    Div("/") {
-        @Override
-        public boolean isMathOperator() {
-            return true;
-        }
-    },
-    Mult("*") {
-        @Override
-        public boolean isMathOperator() {
-            return true;
-        }
-    },
+    Add("+", Math),
+    Subst("-", Math),
+    Div("/", Math),
+    Mult("*", Math),
 
-    Eq("="),
+    Eq("=", Equal),
 
-    Bs("⬅"),
-    C("C"),
-    CE("CE"),
+    Bs("⬅", Clear),
+    C("C", Clear),
+    CE("CE", Clear),
 
-    Perc("%"),
+    Perc("%", Percent),
+    Neg("±", Negate),
 
-    Inv("1/x") {
-        @Override
-        public boolean isTransformOperator() {
-            return true;
-        }
-    },
-    Neg("±") {
-        @Override
-        public boolean isTransformOperator() {
-            return true;
-        }
-    },
-    Sqrt("√") {
-        @Override
-        public boolean isTransformOperator() {
-            return true;
-        }
-    },
+    Inv("1/x", Transform),
+    Sqrt("√", Transform),
     ;
 
     private final String value;
+    private final OperatorType type;
 
-    Operator(final String value) {
+    Operator(final String value, final OperatorType type) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
+        this.type = type;
     }
 
     public static Operator fromString(final String value) {
@@ -82,11 +48,11 @@ public enum Operator {
                 .orElse(Eq);
     }
 
-    public boolean isMathOperator() {
-        return false;
+    public String getValue() {
+        return value;
     }
 
-    public boolean isTransformOperator() {
-        return false;
+    public OperatorType getType() {
+        return type;
     }
 }

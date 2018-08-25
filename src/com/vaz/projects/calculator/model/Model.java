@@ -1,19 +1,111 @@
 package com.vaz.projects.calculator.model;
 
+import com.vaz.projects.calculator.controller.Controller;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 
 import static com.vaz.projects.calculator.model.BigDecimalHelper.sqrt;
-import static com.vaz.projects.calculator.model.Operator.Div;
+import static com.vaz.projects.calculator.model.Operator.*;
+import static com.vaz.projects.calculator.model.OperatorType.Math;
 
-public final class Model {
+public class Model {
     public static final String ERR_UNDEFINED = "Result is undefined";
     public static final String ERR_DIV_BY_ZERO = "Cannot divide by zero";
 
-    private Model() {
+    private final Controller controller;
+
+    private BigDecimal leftOperand = BigDecimal.ZERO;
+    private BigDecimal rightOperand = BigDecimal.ZERO;
+    private BigDecimal currentNumber = BigDecimal.ZERO;
+    private Operator lastOperator = Eq;
+    private Operator prevMathOperator;
+
+    public Model(final Controller controller) {
+        this.controller = controller;
     }
 
-    public static String calculate(final BigDecimal n1, final BigDecimal n2, final Operator operator) {
+    public void processEqual() {
+        if (prevMathOperator == null) {
+            leftOperand = currentNumber;
+            return;
+        }
+
+        if (lastOperator == Eq) {
+            leftOperand = currentNumber;
+        } else {
+            rightOperand = currentNumber;
+        }
+
+        final String result = calculate(leftOperand, rightOperand, prevMathOperator);
+        leftOperand = new BigDecimal(result);
+        currentNumber = leftOperand;
+
+        lastOperator = Eq;
+    }
+
+    public void processMathOperator(final Operator op) {
+        if (lastOperator.getType() == Math && controller.isNewNumber()) {
+            prevMathOperator = op;
+            return;
+        }
+
+        rightOperand = lastOperator == Eq && controller.isNewNumber()
+                ? leftOperand
+                : currentNumber;
+
+        if (lastOperator == Eq || prevMathOperator == null) {
+            leftOperand = currentNumber;
+        } else {
+            final String result = calculate(leftOperand, rightOperand, prevMathOperator);
+            leftOperand = new BigDecimal(result);
+        }
+
+        currentNumber = leftOperand;
+        prevMathOperator = op;
+        lastOperator = prevMathOperator;
+    }
+
+    public void processPercent() {
+        final String result = calculate(leftOperand, currentNumber, Perc);
+        currentNumber = new BigDecimal(result);
+        lastOperator = Perc;
+    }
+
+    public void processNegate() {
+        currentNumber = currentNumber.negate();
+    }
+
+    public void processNumberTransform(final Operator op) {
+        final String result = transform(currentNumber, op);
+        currentNumber = new BigDecimal(result);
+    }
+
+    public void processMemory(final Operator op) {
+        System.out.println("Should work with memory");
+    }
+
+    public void reset(final boolean full) {
+        rightOperand = BigDecimal.ZERO;
+        currentNumber = BigDecimal.ZERO;
+
+        if (full) {
+            leftOperand = BigDecimal.ZERO;
+            prevMathOperator = null;
+            lastOperator = Eq;
+        }
+    }
+
+    public BigDecimal getCurrentNumber() {
+        return currentNumber;
+    }
+
+    public void updateCurrentNumber(final BigDecimal currentNumber) {
+        this.currentNumber = currentNumber;
+    }
+
+
+    private String calculate(final BigDecimal n1, final BigDecimal n2, final Operator operator) {
 
         final BigDecimal result;
 
@@ -41,8 +133,7 @@ public final class Model {
         return result.stripTrailingZeros().toPlainString();
     }
 
-    public static String transform(final BigDecimal value, final Operator operator) {
-
+    private String transform(final BigDecimal value, final Operator operator) {
         switch (operator) {
             case Inv:
                 return calculate(BigDecimal.ONE, value, Div);
@@ -56,8 +147,7 @@ public final class Model {
         }
     }
 
-
-    private static void checkDivisionByZero(final BigDecimal n1, final BigDecimal n2) {
+    private void checkDivisionByZero(final BigDecimal n1, final BigDecimal n2) {
         if (BigDecimal.ZERO.compareTo(n2) != 0) {
             return;
         }

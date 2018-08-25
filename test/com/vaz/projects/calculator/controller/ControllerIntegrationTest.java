@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -710,33 +711,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
             final ActionEvent wrongEvent = new ActionEvent(buttonNull, null);
             final String expectedErrorMessage = "Empty operator value";
 
-            assertThrows(IllegalArgumentException.class, () -> getController().processOperator(wrongEvent), expectedErrorMessage);
-        });
-    }
-
-    @Test
-    @DisplayName("Illegal process operator")
-    void testProcessOperator_IllegalEvent() {
-        interact(() -> {
-            final ActionEvent wrongEvent = new ActionEvent(buttonC, null);
-            getController().processNumpad(new ActionEvent(button1, new Button("1")));
-            getController().processOperator(wrongEvent);
-            getController().processNumpad(new ActionEvent(button1, new Button("1")));
-            final String expectedErrorMessage = "Calculate method. Incorrect operator: C";
-            assertThrows(IllegalArgumentException.class, () -> getController().processOperator(wrongEvent), expectedErrorMessage);
-        });
-    }
-
-    @Test
-    @DisplayName("Illegal transform operator")
-    void testProcessNumberTransform_IllegalEvent() {
-        clickButtonSequence(button1, buttonAdd, button2);
-
-        interact(() -> {
-            final ActionEvent wrongEvent = new ActionEvent(buttonC, null);
-            final String expectedErrorMessage = "Calculate method. Incorrect operator: C";
-
-            assertThrows(IllegalArgumentException.class, () -> getController().processNumberTransform(wrongEvent), expectedErrorMessage);
+            assertThrows(IllegalArgumentException.class, () -> getController().processOperationEvent(wrongEvent), expectedErrorMessage);
         });
     }
 
