@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
 <VBox prefHeight="400.0" prefWidth="300.0" spacing="10.0"
       alignment="BOTTOM_CENTER" styleClass="root"
       stylesheets="@/styles/calc.css"
@@ -12,13 +12,19 @@
 
     <fx:define>
         <Font fx:id="SUPERSCRIPT" size="16"/>
+        <Font fx:id="MEMORY" size="21"/>
         <Font fx:id="OUTPUT" size="36"/>
     </fx:define>
 
     <StackPane styleClass="display">
         <Text fx:id="superscript" font="$SUPERSCRIPT" wrappingWidth="240" textAlignment="RIGHT"
               StackPane.alignment="TOP_RIGHT"/>
-        <Text fx:id="output" font="$OUTPUT" wrappingWidth="240" textAlignment="RIGHT" text="0"
+        <Text fx:id="memory" font="$MEMORY" wrappingWidth="20" StackPane.alignment="BOTTOM_LEFT">
+            <StackPane.margin>
+                <Insets bottom="4.0"/>
+            </StackPane.margin>
+        </Text>
+        <Text fx:id="output" font="$OUTPUT" wrappingWidth="250" textAlignment="RIGHT" text="0"
               StackPane.alignment="BOTTOM_RIGHT"/>
     </StackPane>
 
@@ -30,7 +36,8 @@
         <fx:include source="common_button.fxml" text="M-" styleClass="button-mem" onAction="#processOperationEvent"/>
     </HBox>
     <HBox spacing="10" alignment="CENTER">
-        <fx:include source="common_button.fxml" text="&#x2B05;" styleClass="button-bs" onAction="#processOperationEvent"/>
+        <fx:include source="common_button.fxml" text="&#x2B05;" styleClass="button-bs"
+                    onAction="#processOperationEvent"/>
         <fx:include source="common_button.fxml" text="CE" onAction="#processOperationEvent"/>
         <fx:include source="common_button.fxml" text="C" onAction="#processOperationEvent"/>
         <fx:include source="common_button.fxml" text="&#x00B1;" onAction="#processOperationEvent"/>
@@ -59,7 +66,8 @@
                 <fx:include source="common_button.fxml" text="-" onAction="#processOperationEvent"/>
             </HBox>
             <HBox spacing="10">
-                <fx:include source="common_button.fxml" text="0" styleClass="button-z, button-num" onAction="#processNumpad"/>
+                <fx:include source="common_button.fxml" text="0" styleClass="button-z, button-num"
+                            onAction="#processNumpad"/>
                 <fx:include source="common_button.fxml" text="." styleClass="button-num" onAction="#processNumpad"/>
                 <fx:include source="common_button.fxml" text="+" onAction="#processOperationEvent"/>
             </HBox>

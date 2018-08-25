@@ -17,8 +17,8 @@ public final class ViewHelper {
     private static final int DIGIT_THRESHOLD = 12;
     private static final int STRING_THRESHOLD = 16;
     private static final Font ERROR_FONT = new Font(16);
-    private static final Font EXTRA_SMALL_FONT = new Font(20);
-    private static final Font SMALL_FONT = new Font(26);
+    private static final Font EXTRA_SMALL_FONT = new Font(22);
+    private static final Font SMALL_FONT = new Font(28);
     private static final Font BIG_FONT = new Font(36);
 
     private static final Pattern POSITIVE_SCIENTIFIC_NOTATION = Pattern.compile("E", Pattern.LITERAL);

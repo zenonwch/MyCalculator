@@ -18,6 +18,7 @@ public class Model {
     private BigDecimal leftOperand = BigDecimal.ZERO;
     private BigDecimal rightOperand = BigDecimal.ZERO;
     private BigDecimal currentNumber = BigDecimal.ZERO;
+    private BigDecimal memoryNumber = BigDecimal.ZERO;
     private Operator lastOperator = Eq;
     private Operator prevMathOperator;
 
@@ -82,7 +83,28 @@ public class Model {
     }
 
     public void processMemory(final Operator op) {
-        System.out.println("Should work with memory");
+        switch (op) {
+            case M_Store:
+                memoryNumber = currentNumber;
+                break;
+            case M_Add:
+                memoryNumber = memoryNumber.add(currentNumber);
+                break;
+            case M_Subtr:
+                memoryNumber = memoryNumber.subtract(currentNumber);
+                break;
+            case M_Retrieve:
+                currentNumber = memoryNumber;
+                break;
+            case M_Clear:
+                memoryNumber = BigDecimal.ZERO;
+                break;
+            default:
+                throw new IllegalArgumentException("Process Memory. Incorrect operator: " + op);
+        }
+
+        final boolean needFlag = BigDecimal.ZERO.compareTo(memoryNumber) != 0;
+        controller.setMemoryFlag(needFlag);
     }
 
     public void reset(final boolean full) {
@@ -113,7 +135,7 @@ public class Model {
             case Add:
                 result = n1.add(n2);
                 break;
-            case Subst:
+            case Subtr:
                 result = n1.subtract(n2);
                 break;
             case Mult:

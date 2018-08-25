@@ -21,12 +21,16 @@ import static com.vaz.projects.calculator.view.ViewHelper.resetView;
 
 public class Controller {
     private static final Pattern NON_DIGIT = Pattern.compile("^0\\.|\\.");
+    static final String MEM_FLAG = "M";
     public static final int MAX_DIGIT_NUMBER = 16;
 
     private final Model model = new Model(this);
 
     @FXML
     private Text output;
+
+    @FXML
+    private Text memory;
 
     @FXML
     private Text superscript;
@@ -36,6 +40,10 @@ public class Controller {
 
     public boolean isNewNumber() {
         return newNumber;
+    }
+
+    public void setMemoryFlag(final boolean on) {
+        memory.setText(on ? MEM_FLAG : "");
     }
 
     public void processKeyEvent(final KeyEvent event) {
@@ -185,6 +193,7 @@ public class Controller {
             if (!newNumber && currentTextLength > 1) {
                 currentText = currentText.substring(0, currentTextLength - 1);
                 setOutputText(currentText);
+                model.updateCurrentNumber(new BigDecimal(currentText));
             } else {
                 reset(false);
             }

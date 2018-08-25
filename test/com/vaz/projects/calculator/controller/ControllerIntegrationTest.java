@@ -5,7 +5,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +12,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static com.vaz.projects.calculator.controller.Controller.MAX_DIGIT_NUMBER;
+import static com.vaz.projects.calculator.controller.Controller.MEM_FLAG;
 import static com.vaz.projects.calculator.model.Model.ERR_DIV_BY_ZERO;
 import static com.vaz.projects.calculator.model.Model.ERR_UNDEFINED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,6 +43,11 @@ class ControllerIntegrationTest extends MyApplicationTest {
     private Button buttonMult;
     private Button buttonDiv;
     private Button buttonEq;
+    private Button buttonMC;
+    private Button buttonMR;
+    private Button buttonMS;
+    private Button buttonMAdd;
+    private Button buttonMSub;
 
     @Override
     @BeforeEach
@@ -75,6 +80,12 @@ class ControllerIntegrationTest extends MyApplicationTest {
         buttonMult = findButton("*");
         buttonDiv = findButton("/");
         buttonEq = findButton("=");
+
+        buttonMC = findButton("MC");
+        buttonMR = findButton("MR");
+        buttonMS = findButton("MS");
+        buttonMAdd = findButton("M+");
+        buttonMSub = findButton("M-");
     }
 
     @Test
@@ -755,6 +766,135 @@ class ControllerIntegrationTest extends MyApplicationTest {
         assertEquals("0", getOutputText());
     }
 
+    @Test
+    @DisplayName("0 can not be added to memory")
+    void testMemory_noEffectIfZero() {
+        clickOn(buttonMS);
+        assertEquals("0", getOutputText());
+        assertEquals("", getMemoryFlag());
+
+        clickOn(buttonMAdd);
+        assertEquals("0", getOutputText());
+        assertEquals("", getMemoryFlag());
+
+        clickOn(buttonMSub);
+        assertEquals("0", getOutputText());
+        assertEquals("", getMemoryFlag());
+
+        clickOn(buttonMR);
+        assertEquals("0", getOutputText());
+        assertEquals("", getMemoryFlag());
+
+        clickOn(buttonMC);
+        assertEquals("0", getOutputText());
+        assertEquals("", getMemoryFlag());
+    }
+
+    @Test
+    @DisplayName("Current number is stored in memory")
+    void testMemory_storeAndRetrieve() {
+        clickButtonSequence(button5, buttonMS, buttonC, buttonMR);
+
+        assertEquals("5", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+    }
+
+    @Test
+    @DisplayName("It is possible to add to and subtract from memory")
+    void testMemory_addAndSubtract() {
+        clickButtonSequence(button5, buttonMAdd, buttonC, button6, buttonMAdd, buttonEq, buttonC, buttonMR);
+        assertEquals("11", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickOn(buttonMC);
+        clickButtonSequence(button5, buttonMAdd, button7, buttonMAdd, button6, buttonMSub, button8, buttonMR);
+        assertEquals("6", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickOn(buttonMC);
+        clickButtonSequence(button5, buttonMAdd, button5, buttonMSub);
+        assertEquals("5", getOutputText());
+        assertEquals("", getMemoryFlag());
+
+        clickOn(buttonMR);
+        assertEquals("0", getOutputText());
+        assertEquals("", getMemoryFlag());
+    }
+
+    @Test
+    @DisplayName("Hit M+ or M- multiple times")
+    void testMemory_complexAddAndSubtract() {
+        clickOn(button5);
+        clickButtonNTimes(buttonMAdd, 5);
+        assertEquals("5", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickOn(buttonMR);
+        assertEquals("25", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickButtonSequence(buttonMC, buttonC, button5);
+        clickButtonNTimes(buttonMAdd, 5);
+        clickButtonNTimes(buttonMSub, 3);
+        assertEquals("5", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickOn(buttonMR);
+        assertEquals("10", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickButtonSequence(buttonMC, buttonC, button5);
+        clickButtonNTimes(buttonMAdd, 5);
+        clickButtonNTimes(buttonMSub, 5);
+        assertEquals("5", getOutputText());
+        assertEquals("", getMemoryFlag());
+
+        clickButtonNTimes(buttonMSub, 2);
+        assertEquals("5", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickOn(buttonMR);
+        assertEquals("-10", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+    }
+
+    @Test
+    @DisplayName("Memory processing should not break the flow")
+    void testMemory_processFlow() {
+        clickButtonSequence(button5, buttonAdd, button1);
+        clickButtonNTimes(buttonEq, 5);
+        clickOn(buttonMAdd);
+        clickButtonNTimes(buttonEq, 5);
+        assertEquals("15", getOutputText());
+
+        clickOn(buttonMR);
+        clickButtonNTimes(buttonEq, 2);
+        assertEquals("12", getOutputText());
+
+        clickButtonSequence(buttonMR, buttonMAdd, buttonMAdd);
+        clickButtonNTimes(buttonEq, 5);
+        assertEquals("15", getOutputText());
+
+        clickOn(buttonMR);
+        clickButtonNTimes(buttonEq, 5);
+        assertEquals("35", getOutputText());
+    }
+
+    @Test
+    @DisplayName("Memory should be cleared without affect displayed number")
+    void testMemory_clear() {
+        clickButtonSequence(button5, buttonMAdd, button6, buttonMR);
+        assertEquals("5", getOutputText());
+        assertEquals(MEM_FLAG, getMemoryFlag());
+
+        clickOn(buttonMC);
+        assertEquals("5", getOutputText());
+        assertEquals("", getMemoryFlag());
+
+        clickOn(buttonMR);
+        assertEquals("0", getOutputText());
+        assertEquals("", getMemoryFlag());
+    }
 
     private void clickButtonSequence(final Button... buttons) {
         Arrays.stream(buttons).forEach(this::clickOn);
@@ -768,5 +908,9 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
     private String getOutputText() {
         return ((Text) find("#output")).getText();
+    }
+
+    private String getMemoryFlag() {
+        return ((Text) find("#memory")).getText();
     }
 }

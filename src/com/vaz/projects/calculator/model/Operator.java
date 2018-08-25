@@ -6,10 +6,9 @@ import java.util.function.Predicate;
 import static com.vaz.projects.calculator.model.OperatorType.*;
 import static com.vaz.projects.calculator.model.OperatorType.Math;
 
-@SuppressWarnings("MethodDoesntCallSuperMethod")
 public enum Operator {
     Add("+", Math),
-    Subst("-", Math),
+    Subtr("-", Math),
     Div("/", Math),
     Mult("*", Math),
 
@@ -24,6 +23,12 @@ public enum Operator {
 
     Inv("1/x", Transform),
     Sqrt("√", Transform),
+
+    M_Clear("MC", Memory),
+    M_Retrieve("MR", Memory),
+    M_Store("MS", Memory),
+    M_Add("M+", Memory),
+    M_Subtr("M-", Memory),
     ;
 
     private final String value;

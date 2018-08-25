@@ -31,7 +31,7 @@ public class MyApplicationTest extends ApplicationTest {
     }
 
     /* Just a shortcut to retrieve widgets in the GUI. */
-    protected <T extends Node> T find(@SuppressWarnings("SameParameterValue") final String query) {
+    protected <T extends Node> T find(final String query) {
         /* TestFX provides many operations to retrieve elements from the loaded GUI. */
         return lookup(query).query();
     }
