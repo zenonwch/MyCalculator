@@ -11,15 +11,22 @@
       fx:controller="com.vaz.projects.calculator.controller.Controller">
 
     <fx:define>
-        <Font fx:id="SUPERSCRIPT" size="16"/>
+        <Font fx:id="SUPERSCRIPT" name="Monospaced Regular" size="17.5"/>
         <Font fx:id="MEMORY" size="21"/>
         <Font fx:id="OUTPUT" size="36"/>
     </fx:define>
 
     <StackPane styleClass="display">
-        <Text fx:id="superscript" font="$SUPERSCRIPT" wrappingWidth="240" textAlignment="RIGHT"
-              StackPane.alignment="TOP_RIGHT"/>
-        <Text fx:id="memory" font="$MEMORY" wrappingWidth="20" StackPane.alignment="BOTTOM_LEFT">
+        <Text fx:id="longSuperscript" font="$SUPERSCRIPT" wrappingWidth="20"
+              StackPane.alignment="TOP_LEFT" text="&#xAB;" visible="false"/>
+        <Text fx:id="superscript" font="$SUPERSCRIPT" wrappingWidth="300" textAlignment="RIGHT"
+              StackPane.alignment="TOP_RIGHT">
+            <StackPane.margin>
+                <Insets top="2.0"/>
+            </StackPane.margin>
+        </Text>
+        <Text fx:id="memory" font="$MEMORY" wrappingWidth="20"
+              StackPane.alignment="BOTTOM_LEFT" text="M" visible="false">
             <StackPane.margin>
                 <Insets bottom="4.0"/>
             </StackPane.margin>

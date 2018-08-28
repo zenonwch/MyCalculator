@@ -12,11 +12,9 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static com.vaz.projects.calculator.controller.Controller.MAX_DIGIT_NUMBER;
-import static com.vaz.projects.calculator.controller.Controller.MEM_FLAG;
 import static com.vaz.projects.calculator.model.Model.ERR_DIV_BY_ZERO;
 import static com.vaz.projects.calculator.model.Model.ERR_UNDEFINED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerIntegrationTest extends MyApplicationTest {
 
@@ -86,6 +84,8 @@ class ControllerIntegrationTest extends MyApplicationTest {
         buttonMS = findButton("MS");
         buttonMAdd = findButton("M+");
         buttonMSub = findButton("M-");
+
+        clickOn(buttonC);
     }
 
     @Test
@@ -94,6 +94,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickOn(button7);
 
         assertEquals("7", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -102,6 +103,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonSequence(button1, button2);
 
         assertEquals("12", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -110,6 +112,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 4);
 
         assertEquals("9999999999999999", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -119,6 +122,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
                 button4, button5, buttonDot, button0,
                 button6, button7, button8, button9);
         assertEquals("12345.06789", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -127,6 +131,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonNTimes(button0, 5);
 
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -134,15 +139,19 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testOneDecimalPoint() {
         clickButtonSequence(buttonDot, buttonDot);
         assertEquals("0.", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonDot, buttonDot, buttonEq);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonDot, button1, buttonDot, button2, buttonDot, button3, buttonEq);
         assertEquals("0.123", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonDot, button1, buttonDot, button2, buttonDot, button3);
         assertEquals("0.123", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -150,9 +159,11 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testLeadingZeroForFractionalNumber() {
         clickButtonSequence(buttonDot, button1, buttonEq);
         assertEquals("0.1", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonDot, button0, button9);
         assertEquals("0.09", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -161,6 +172,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonSequence(button1, buttonEq, button2, buttonEq);
 
         assertEquals("2", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -169,18 +181,26 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickOn(button0);
         clickButtonNTimes(buttonNeg, 3);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, buttonNeg);
         assertEquals("-1", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonNeg);
         assertEquals("1", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(buttonAdd, button1, buttonEq);
+        clickOn(buttonAdd);
+        assertEquals("1 +", getSuperscriptText());
+
+        clickButtonSequence(button1, buttonEq);
         assertEquals("2", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonNeg);
         assertEquals("-2", getOutputText());
+        assertEquals("negate(2)", getSuperscriptText());
     }
 
     @Test
@@ -188,17 +208,21 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testBackSpace() {
         clickOn(buttonBs);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, buttonBs);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonNTimes(button9, 5);
         clickButtonNTimes(buttonBs, 6);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonNTimes(button1, 5);
         clickButtonNTimes(buttonBs, 2);
         assertEquals("111", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -206,21 +230,27 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testClear() {
         clickButtonSequence(button9, buttonC);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button9, button9, buttonC);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button9, buttonAdd, button9, buttonC, buttonEq);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button9, buttonAdd, button9, buttonC, button2, buttonEq);
         assertEquals("2", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button9, buttonAdd, buttonC, button9, buttonEq);
         assertEquals("9", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button9, buttonAdd, button9, buttonC, button2, buttonAdd, button7, buttonEq);
         assertEquals("9", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -228,28 +258,39 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testClearLast() {
         clickButtonSequence(button9, buttonCE);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button9, button2, buttonCE);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, button0, buttonAdd, button7, buttonCE, button9, buttonEq);
         assertEquals("19", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, button0, buttonAdd, button7, buttonCE);
         assertEquals("0", getOutputText());
+        assertEquals("10 +", getSuperscriptText());
     }
 
     @Test
     @DisplayName("+ 2 = 2; 1 + 1 = 2; + 2 = 4")
     void testSimpleAddition() {
-        clickButtonSequence(buttonAdd, button2, buttonEq);
+        clickButtonSequence(buttonAdd, button2);
+        assertEquals("0 +", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("2", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, buttonAdd, button1, buttonEq);
         assertEquals("2", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(buttonAdd, button2, buttonEq);
+        clickButtonSequence(buttonAdd, button2);
+        assertEquals("2 +", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("4", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -257,10 +298,12 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testSimpleAddition_MaxValues() {
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 4);
         clickOn(buttonAdd);
+        assertEquals("9999999999999999 +", getSuperscriptText());
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 3);
         clickOn(buttonEq);
 
         assertEquals("2.e+16", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -269,10 +312,12 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonSequence(
                 button1, buttonAdd,
                 button9, buttonAdd,
-                button9, buttonAdd,
-                button1, buttonEq);
+                button9, buttonAdd);
+        assertEquals("1 + 9 + 9 +", getSuperscriptText());
 
+        clickButtonSequence(button1, buttonEq);
         assertEquals("20", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -281,10 +326,17 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonSequence(button2, buttonAdd, buttonEq,
                 buttonAdd, buttonEq, buttonAdd, buttonEq);
         assertEquals("16", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(button2, buttonAdd, button2,
-                buttonEq, buttonAdd, buttonEq, buttonAdd, buttonEq);
+        clickButtonSequence(button2, buttonAdd, button2, buttonEq, buttonAdd);
+        assertEquals("4 +", getSuperscriptText());
+
+        clickButtonSequence(buttonEq, buttonAdd);
+        assertEquals("8 +", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("16", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -293,31 +345,45 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonSequence(button2, buttonAdd, button5,
                 buttonEq, button3, buttonEq);
         assertEquals("8", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonEq);
         assertEquals("13", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button4, buttonEq);
         assertEquals("9", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonEq);
         assertEquals("14", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("Bunch of simple subtractions")
     void testSimpleSubtraction() {
-        clickButtonSequence(buttonSub, button9, buttonEq);
+        clickButtonSequence(buttonSub, button9);
+        assertEquals("0 -", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("-9", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(button1, buttonSub, button1, buttonEq);
+        clickButtonSequence(button1, buttonSub);
+        assertEquals("1 -", getSuperscriptText());
+        clickButtonSequence(button1, buttonEq);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, buttonSub, button2, buttonEq);
         assertEquals("-1", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(buttonSub, button9, buttonEq);
+        clickButtonSequence(buttonSub, button9);
+        assertEquals("-1 -", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("-10", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -325,10 +391,13 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testSimpleSubtraction_MaxValues() {
         clickOn(buttonSub);
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 3);
+        assertEquals("0 -", getSuperscriptText());
         clickOn(buttonEq);
         assertEquals("-9999999999999999", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonSub);
+        assertEquals("-9999999999999999 -", getSuperscriptText());
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 4);
         clickOn(buttonEq);
         assertEquals("-2.e+16", getOutputText());
@@ -342,16 +411,23 @@ class ControllerIntegrationTest extends MyApplicationTest {
                 buttonAdd, button5,
                 buttonSub, button9,
                 buttonSub, button1,
-                buttonAdd, button5,
-                buttonEq);
+                buttonAdd);
+        assertEquals("20 + 5 - 9 - 1 +", getSuperscriptText());
+
+        clickButtonSequence(button5, buttonEq);
         assertEquals("20", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("2 * 2 = 4")
     void testSimpleMultiplication() {
-        clickButtonSequence(button2, buttonMult, button2, buttonEq);
+        clickButtonSequence(button2, buttonMult);
+        assertEquals("2 *", getSuperscriptText());
+
+        clickButtonSequence(button2, buttonEq);
         assertEquals("4", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -360,6 +436,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 2);
         clickButtonSequence(buttonMult, buttonEq);
         assertEquals("9.999999999999998e+31", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -369,6 +446,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER + 3);
         clickButtonSequence(buttonMult, buttonEq);
         assertEquals("0.9999999999999998", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -376,8 +454,12 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testSimpleMultiplication_MinValues() {
         clickOn(buttonDot);
         clickButtonNTimes(button0, MAX_DIGIT_NUMBER - 1);
-        clickButtonSequence(button9, buttonMult, buttonEq);
+        clickButtonSequence(button9, buttonMult);
+        assertEquals("0.0000000000000009 *", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("8.1e-31", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -388,48 +470,79 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonSequence(button1, buttonNeg, buttonMult, buttonDot, button1, buttonEq);
         assertEquals("-0.0000000000000001", getOutputText());
 
-        clickButtonSequence(buttonMult, buttonDot, button1, buttonEq);
+        clickOn(buttonMult);
+        assertEquals("-0.0000000000000001 *", getSuperscriptText());
+
+        clickButtonSequence(buttonDot, button1, buttonEq);
         assertEquals("-1.e-17", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("7 * -20 = -140")
     void testSimpleMultiplication_NegateSecondNumber() {
-        clickButtonSequence(button7, buttonMult, buttonNeg, button2, button0, buttonEq);
+        clickButtonSequence(button7, buttonMult, buttonNeg);
+        assertEquals("7 * negate(7)", getSuperscriptText());
+        clickOn(button2);
+        assertEquals("7 *", getSuperscriptText());
+        clickButtonSequence(button0, buttonEq);
         assertEquals("140", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(button7, buttonMult, button2, buttonNeg, button0, buttonEq);
+        clickButtonSequence(button7, buttonMult, button2, buttonNeg);
+        assertEquals("7 *", getSuperscriptText());
+        clickButtonSequence(button0, buttonEq);
         assertEquals("-140", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(button7, buttonMult, button2, button0, buttonNeg, buttonEq);
+        clickButtonSequence(button7, buttonMult, button2, button0, buttonNeg);
+        assertEquals("7 *", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("-140", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("1 * 2 * 7 * 9 = 126")
     void testComplexMultiplication() {
-        clickButtonSequence(button1, buttonMult, button2, buttonMult, button7, buttonMult, button9, buttonEq);
+        clickButtonSequence(button1, buttonMult, button2, buttonMult, button7, buttonMult, button9);
+        assertEquals("1 * 2 * 7 *", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("126", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("10 / 2 = 5; 1 / 2 = 0.5")
     void testSimpleDivision() {
-        clickButtonSequence(button1, button0, buttonDiv, button2, buttonEq);
+        clickButtonSequence(button1, button0, buttonDiv);
+        assertEquals("10 /", getSuperscriptText());
+        clickButtonSequence(button2, buttonEq);
         assertEquals("5", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, buttonDiv, button2, buttonEq);
         assertEquals("0.5", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("12 / -2 = -6")
     void testSimpleDivision_NegateSecondNumber() {
-        clickButtonSequence(button1, button2, buttonDiv, buttonNeg, button2, buttonEq);
+        clickButtonSequence(button1, button2, buttonDiv, buttonNeg);
+        assertEquals("12 / negate(12)", getSuperscriptText());
+        clickOn(button2);
+        assertEquals("12 /", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("6", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(button1, button2, buttonDiv, button2, buttonNeg, buttonEq);
+        clickButtonSequence(button1, button2, buttonDiv, button2, buttonNeg);
+        assertEquals("12 /", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("-6", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -444,13 +557,21 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testSimpleDivision_PositiveScientificNotation() {
         clickOn(button1);
         clickButtonNTimes(button0, MAX_DIGIT_NUMBER);
-        clickButtonSequence(buttonMult, button1, button0, buttonEq, buttonDiv, button1, button0, buttonEq);
+        clickButtonSequence(buttonMult, button1, button0, buttonEq, buttonDiv);
+        assertEquals("1.e+16 /", getSuperscriptText());
+
+        clickButtonSequence(button1, button0, buttonEq);
         assertEquals("1000000000000000", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(button1);
         clickButtonNTimes(button0, MAX_DIGIT_NUMBER);
-        clickButtonSequence(buttonNeg, buttonMult, button1, button0, buttonEq, buttonDiv, button1, button0, buttonEq);
+        clickButtonSequence(buttonNeg, buttonMult, button1, button0, buttonEq, buttonDiv);
+        assertEquals("-1.e+16 /", getSuperscriptText());
+
+        clickButtonSequence(button1, button0, buttonEq);
         assertEquals("-1000000000000000", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -458,13 +579,21 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testSimpleDivision_NegativeScientificNotation() {
         clickOn(buttonDot);
         clickButtonNTimes(button0, MAX_DIGIT_NUMBER - 1);
-        clickButtonSequence(button1, buttonDiv, button1, button0, buttonEq, buttonMult, button1, button0, buttonEq);
+        clickButtonSequence(button1, buttonDiv, button1, button0, buttonEq, buttonMult);
+        assertEquals("1.e-17 *", getSuperscriptText());
+
+        clickButtonSequence(button1, button0, buttonEq);
         assertEquals("0.0000000000000001", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonDot);
         clickButtonNTimes(button0, MAX_DIGIT_NUMBER - 1);
-        clickButtonSequence(button1, buttonNeg, buttonDiv, button1, button0, buttonEq, buttonMult, button1, button0, buttonEq);
+        clickButtonSequence(button1, buttonNeg, buttonDiv, button1, button0, buttonEq, buttonMult);
+        assertEquals("-1.e-17 *", getSuperscriptText());
+
+        clickButtonSequence(button1, button0, buttonEq);
         assertEquals("-0.0000000000000001", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -472,18 +601,23 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testDivisionByZero() {
         clickButtonSequence(button1, buttonDiv, button0, buttonEq);
         assertEquals(ERR_DIV_BY_ZERO, getOutputText());
+        assertEquals("1 /", getSuperscriptText());
 
         clickOn(buttonC);
 
         clickButtonSequence(buttonDiv, buttonEq);
         assertEquals(ERR_UNDEFINED, getOutputText());
+        assertEquals("0 /", getSuperscriptText());
     }
 
     @Test
     @DisplayName("1 / 9 / (1/9) = 1")
     void testComplexDivision() {
-        clickButtonSequence(button1, buttonDiv, button9, buttonDiv, button9, buttonInv, buttonEq);
+        clickButtonSequence(button1, buttonDiv, button9, buttonDiv, button9, buttonInv);
+        assertEquals("1 / 9 / reciproc(9)", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("1", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -513,8 +647,17 @@ class ControllerIntegrationTest extends MyApplicationTest {
     @Test
     @DisplayName("2 +  - / * 5 = 10")
     void testOperatorReplacement() {
-        clickButtonSequence(button2, buttonAdd, buttonSub, buttonDiv, buttonMult, button5, buttonEq);
+        clickButtonSequence(button2, buttonAdd);
+        assertEquals("2 +", getSuperscriptText());
+        clickOn(buttonSub);
+        assertEquals("2 -", getSuperscriptText());
+        clickOn(buttonDiv);
+        assertEquals("2 /", getSuperscriptText());
+        clickOn(buttonMult);
+        assertEquals("2 *", getSuperscriptText());
+        clickButtonSequence(button5, buttonEq);
         assertEquals("10", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -522,9 +665,13 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testInversionTwice() {
         clickButtonSequence(button2, buttonInv, buttonInv);
         assertEquals("2", getOutputText());
+        assertEquals("reciproc(reciproc(2))", getSuperscriptText());
 
-        clickButtonSequence(button9, buttonInv, buttonInv);
+        clickOn(button9);
+        clickButtonNTimes(buttonInv, 4);
         assertEquals("9", getOutputText());
+        assertEquals("c(reciproc(reciproc(9))))", getSuperscriptText());
+        assertTrue(getLongSuperscriptFlag().isVisible());
     }
 
     @Test
@@ -532,6 +679,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testInversion_Zero() {
         clickOn(buttonInv);
         assertEquals("Cannot divide by zero", getOutputText());
+        assertEquals("reciproc(0)", getSuperscriptText());
     }
 
     @Test
@@ -539,12 +687,15 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testInversion_One() {
         clickButtonSequence(button1, buttonInv);
         assertEquals("1", getOutputText());
+        assertEquals("reciproc(1)", getSuperscriptText());
 
         clickButtonSequence(button1, buttonInv, buttonEq);
         assertEquals("1", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, buttonEq, buttonInv);
         assertEquals("1", getOutputText());
+        assertEquals("reciproc(1)", getSuperscriptText());
     }
 
     @Test
@@ -576,18 +727,24 @@ class ControllerIntegrationTest extends MyApplicationTest {
     @Test
     @DisplayName("9 * inverse(9) = 1")
     void testInversion_Complex() {
-        clickButtonSequence(button9, buttonMult, button9, buttonInv, buttonEq);
+        clickButtonSequence(button9, buttonMult, button9, buttonInv);
+        assertEquals("9 * reciproc(9)", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("1", getOutputText());
+        assertEquals("", getSuperscriptText());
 
-        clickButtonSequence(button9, buttonInv, buttonMult, button9, buttonEq);
+        clickButtonSequence(button9, buttonInv, buttonMult);
+        assertEquals("reciproc(9) *", getSuperscriptText());
+        clickButtonSequence(button9, buttonEq);
         assertEquals("1", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("sqrt(9) = 3")
     void testSquareRoot_9() {
         clickButtonSequence(button9, buttonSqrt);
-
+        assertEquals("sqrt(9)", getSuperscriptText());
         assertEquals("3", getOutputText());
     }
 
@@ -597,8 +754,23 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickOn(buttonDot);
         clickButtonNTimes(button9, MAX_DIGIT_NUMBER);
         clickOn(buttonSqrt);
-
+        assertEquals("sqrt(0.9999999999999999)", getSuperscriptText());
         assertEquals("0.9999999999999999", getOutputText());
+    }
+
+    @Test
+    @DisplayName("Long superscript value")
+    void testSuperscript_LongValue() {
+        clickOn(buttonDot);
+        clickButtonNTimes(button9, MAX_DIGIT_NUMBER);
+        clickButtonSequence(buttonSqrt, buttonAdd, button1);
+        assertEquals("sqrt(0.9999999999999999) +", getSuperscriptText());
+        assertFalse(getLongSuperscriptFlag().isVisible());
+
+        clickOn(buttonAdd);
+        assertEquals("2", getOutputText());
+        assertEquals("0.9999999999999999) + 1 +", getSuperscriptText());
+        assertTrue(getLongSuperscriptFlag().isVisible());
     }
 
     @Test
@@ -635,19 +807,26 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testComplexNumberTransform() {
         clickButtonSequence(button1, buttonAdd, button1);
         clickButtonNTimes(buttonEq, 8);
-        clickButtonSequence(buttonSqrt, buttonEq, buttonEq);
+        clickOn(buttonSqrt);
+        assertEquals("sqrt(9)", getSuperscriptText());
 
+        clickButtonSequence(buttonEq, buttonEq);
         assertEquals("5", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("100% = 0")
     void testSimplePercent_OneNumberOnly() {
-        clickButtonSequence(button1, button0, button0, buttonPerc, buttonEq);
+        clickButtonSequence(button1, button0, button0, buttonPerc);
+        assertEquals("0", getSuperscriptText());
+        clickOn(buttonEq);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, button0, button0, buttonPerc);
         assertEquals("0", getOutputText());
+        assertEquals("0", getSuperscriptText());
     }
 
     @Test
@@ -655,60 +834,96 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testSimplePercent() {
         clickButtonSequence(button1, button5, button0, buttonMult, button3, buttonPerc);
         assertEquals("4.5", getOutputText());
+        assertEquals("150 * 4.5", getSuperscriptText());
     }
 
     @Test
     @DisplayName("10 + % = 11")
     void testSimplePercent_NoSecondNumberInput() {
-        clickButtonSequence(button1, button0, buttonAdd, buttonPerc, buttonEq);
+        clickButtonSequence(button1, button0, buttonAdd, buttonPerc);
+        assertEquals("10 + 1", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("11", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("10 + 5% = 10.5")
     void testAddPercent() {
-        clickButtonSequence(button1, button0, buttonAdd, button5, buttonPerc, buttonEq);
+        clickButtonSequence(button1, button0, buttonAdd, button5, buttonPerc);
+        assertEquals("10 + 0.5", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("10.5", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("20 - 3% = 19.4")
     void testSubtractPercent() {
-        clickButtonSequence(button2, button0, buttonSub, button3, buttonPerc, buttonEq);
+        clickButtonSequence(button2, button0, buttonSub, button3, buttonPerc);
+        assertEquals("20 - 0.6", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("19.4", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("10 * 5% = 5")
     void testMultiplyPercent() {
-        clickButtonSequence(button1, button0, buttonMult, button5, buttonPerc, buttonEq);
+        clickButtonSequence(button1, button0, buttonMult, button5, buttonPerc);
+        assertEquals("10 * 0.5", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("5", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("20 / 20% = 5")
     void testDividePercent() {
-        clickButtonSequence(button2, button0, buttonDiv, button2, button0, buttonPerc, buttonEq);
+        clickButtonSequence(button2, button0, buttonDiv, button2, button0, buttonPerc);
+        assertEquals("20 / 4", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("5", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("20 + 5% - 5 = 16")
     void testComplexPercent() {
-        clickButtonSequence(button2, button0, buttonAdd, button5, buttonPerc, buttonSub, button5, buttonEq);
+        clickButtonSequence(button2, button0, buttonAdd, button5, buttonPerc, buttonSub);
+        assertEquals("20 + 1 -", getSuperscriptText());
+
+        clickButtonSequence(button5, buttonEq);
         assertEquals("16", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("100 + 10%% = 110; 100 + 10% =%% = 133.1")
     void testPercent_MultipleClick() {
         clickButtonSequence(button1, button0, button0, buttonAdd,
-                button1, button0, buttonPerc, buttonPerc, buttonEq);
+                button1, button0, buttonPerc, buttonPerc);
+        assertEquals("100 + 10", getSuperscriptText());
+
+        clickOn(buttonEq);
         assertEquals("110", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(button1, button0, button0, buttonAdd,
-                button1, button0, buttonPerc, buttonEq, buttonPerc, buttonPerc);
+                button1, button0, buttonPerc);
+        assertEquals("100 + 10", getSuperscriptText());
+
+        clickButtonSequence(buttonEq, buttonPerc);
+        assertEquals("121", getSuperscriptText());
+
+        clickOn(buttonPerc);
         assertEquals("133.1", getOutputText());
+        assertEquals("133.1", getSuperscriptText());
     }
 
     @Test
@@ -730,8 +945,8 @@ class ControllerIntegrationTest extends MyApplicationTest {
     @DisplayName("sqrt(-9) -> ArithmeticException")
     void testProcessNumberTransform_SqrtForNegativeValue() {
         clickButtonSequence(button9, buttonNeg, buttonSqrt);
-
         assertEquals("Invalid input", getOutputText());
+        assertEquals("sqrt(-9)", getSuperscriptText());
     }
 
     @Test
@@ -746,6 +961,7 @@ class ControllerIntegrationTest extends MyApplicationTest {
             if (!"C".equals(buttonLabel) && !"CE".equals(buttonLabel)) {
                 clickOn(button);
                 assertEquals(ERR_UNDEFINED, getOutputText());
+                assertEquals("0 /", getSuperscriptText());
             }
         });
     }
@@ -758,12 +974,14 @@ class ControllerIntegrationTest extends MyApplicationTest {
 
         clickOn(buttonCE);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonDiv, buttonEq);
         assertEquals(ERR_UNDEFINED, getOutputText());
 
         clickOn(buttonC);
         assertEquals("0", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -771,23 +989,28 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testMemory_noEffectIfZero() {
         clickOn(buttonMS);
         assertEquals("0", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMAdd);
         assertEquals("0", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMSub);
         assertEquals("0", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         assertEquals("0", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMC);
         assertEquals("0", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -796,7 +1019,8 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickButtonSequence(button5, buttonMS, buttonC, buttonMR);
 
         assertEquals("5", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -804,21 +1028,25 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testMemory_addAndSubtract() {
         clickButtonSequence(button5, buttonMAdd, buttonC, button6, buttonMAdd, buttonEq, buttonC, buttonMR);
         assertEquals("11", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMC);
         clickButtonSequence(button5, buttonMAdd, button7, buttonMAdd, button6, buttonMSub, button8, buttonMR);
         assertEquals("6", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMC);
         clickButtonSequence(button5, buttonMAdd, button5, buttonMSub);
         assertEquals("5", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         assertEquals("0", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -827,57 +1055,69 @@ class ControllerIntegrationTest extends MyApplicationTest {
         clickOn(button5);
         clickButtonNTimes(buttonMAdd, 5);
         assertEquals("5", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         assertEquals("25", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonMC, buttonC, button5);
         clickButtonNTimes(buttonMAdd, 5);
         clickButtonNTimes(buttonMSub, 3);
         assertEquals("5", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         assertEquals("10", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonMC, buttonC, button5);
         clickButtonNTimes(buttonMAdd, 5);
         clickButtonNTimes(buttonMSub, 5);
         assertEquals("5", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickButtonNTimes(buttonMSub, 2);
         assertEquals("5", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         assertEquals("-10", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
     @DisplayName("Memory processing should not break the flow")
     void testMemory_processFlow() {
         clickButtonSequence(button5, buttonAdd, button1);
+        assertEquals("5 +", getSuperscriptText());
         clickButtonNTimes(buttonEq, 5);
         clickOn(buttonMAdd);
         clickButtonNTimes(buttonEq, 5);
         assertEquals("15", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         clickButtonNTimes(buttonEq, 2);
         assertEquals("12", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickButtonSequence(buttonMR, buttonMAdd, buttonMAdd);
         clickButtonNTimes(buttonEq, 5);
         assertEquals("15", getOutputText());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         clickButtonNTimes(buttonEq, 5);
         assertEquals("35", getOutputText());
+        assertEquals("", getSuperscriptText());
     }
 
     @Test
@@ -885,15 +1125,18 @@ class ControllerIntegrationTest extends MyApplicationTest {
     void testMemory_clear() {
         clickButtonSequence(button5, buttonMAdd, button6, buttonMR);
         assertEquals("5", getOutputText());
-        assertEquals(MEM_FLAG, getMemoryFlag());
+        assertTrue(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMC);
         assertEquals("5", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
 
         clickOn(buttonMR);
         assertEquals("0", getOutputText());
-        assertEquals("", getMemoryFlag());
+        assertFalse(getMemoryFlag().isVisible());
+        assertEquals("", getSuperscriptText());
     }
 
     private void clickButtonSequence(final Button... buttons) {
@@ -910,7 +1153,15 @@ class ControllerIntegrationTest extends MyApplicationTest {
         return ((Text) find("#output")).getText();
     }
 
-    private String getMemoryFlag() {
-        return ((Text) find("#memory")).getText();
+    private String getSuperscriptText() {
+        return ((Text) find("#superscript")).getText();
+    }
+
+    private Text getLongSuperscriptFlag() {
+        return find("#longSuperscript");
+    }
+
+    private Text getMemoryFlag() {
+        return find("#memory");
     }
 }

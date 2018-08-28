@@ -18,22 +18,23 @@ import static com.vaz.projects.calculator.model.Operator.*;
 import static com.vaz.projects.calculator.model.OperatorType.Clear;
 import static com.vaz.projects.calculator.model.OperatorType.Negate;
 import static com.vaz.projects.calculator.view.ViewHelper.resetView;
+import static javafx.scene.input.KeyCode.*;
 
 public class Controller {
     private static final Pattern NON_DIGIT = Pattern.compile("^0\\.|\\.");
-    static final String MEM_FLAG = "M";
+
     public static final int MAX_DIGIT_NUMBER = 16;
 
     private final Model model = new Model(this);
 
     @FXML
     private Text output;
-
     @FXML
     private Text memory;
-
     @FXML
     private Text superscript;
+    @FXML
+    private Text longSuperscript;
 
     private boolean newNumber = true;
     private boolean wasError;
@@ -43,66 +44,60 @@ public class Controller {
     }
 
     public void setMemoryFlag(final boolean on) {
-        memory.setText(on ? MEM_FLAG : "");
+        memory.setVisible(on);
     }
 
     public void processKeyEvent(final KeyEvent event) {
         final KeyCode code = event.getCode();
         final String keyText = event.getText();
 
-        if ("%".equals(keyText) || (event.isShiftDown() && code == KeyCode.DIGIT5)) {
-            processOperationEvent(new ActionEvent(new Button(Perc.getValue()), output));
+        if ("%".equals(keyText) || (event.isShiftDown() && code == DIGIT5)) {
+            processOperationEventByKey(Perc.getValue());
             return;
         }
 
-        if (code == KeyCode.AT || "@".equals(keyText) || (event.isShiftDown() && code == KeyCode.DIGIT2)) {
-            processOperationEvent(new ActionEvent(new Button(Sqrt.getValue()), output));
+        if (code == AT || "@".equals(keyText) || (event.isShiftDown() && code == DIGIT2)) {
+            processOperationEventByKey(Sqrt.getValue());
             return;
         }
 
-        if (code.isDigitKey() || code == KeyCode.DECIMAL) {
+        if (code.isDigitKey() || code == DECIMAL) {
             processNumpad(new ActionEvent(new Button(keyText), output));
             return;
         }
 
-        if (event.isShiftDown() && code == KeyCode.EQUALS) {
-            processOperationEvent(new ActionEvent(new Button(Add.getValue()), output));
+        if (event.isShiftDown() && code == EQUALS) {
+            processOperationEventByKey(Add.getValue());
             return;
         }
 
-        if (code == KeyCode.ADD || code == KeyCode.DIVIDE || code == KeyCode.SUBTRACT
-                || code == KeyCode.MULTIPLY || code == KeyCode.EQUALS) {
-            processOperationEvent(new ActionEvent(new Button(keyText), output));
-            return;
-        }
-
-        if (code == KeyCode.ENTER) {
-            processOperationEvent(new ActionEvent(new Button(Eq.getValue()), output));
-            return;
-        }
-
-        if (code == KeyCode.F9) {
-            processOperationEvent(new ActionEvent(new Button(Neg.getValue()), output));
-            return;
-        }
-
-        if (code == KeyCode.R) {
-            processOperationEvent(new ActionEvent(new Button(Inv.getValue()), output));
-            return;
-        }
-
-        if (code == KeyCode.BACK_SPACE) {
-            processClear(Bs);
-            return;
-        }
-
-        if (code == KeyCode.DELETE) {
-            processClear(CE);
-            return;
-        }
-
-        if (code == KeyCode.ESCAPE) {
-            processClear(C);
+        switch (code) {
+            case ADD:
+            case DIVIDE:
+            case SUBTRACT:
+            case MULTIPLY:
+            case EQUALS:
+                processOperationEventByKey(keyText);
+                break;
+            case ENTER:
+                processOperationEventByKey(Eq.getValue());
+                break;
+            case F9:
+                processOperationEventByKey(Neg.getValue());
+                break;
+            case R:
+                processOperationEventByKey(Inv.getValue());
+                break;
+            case BACK_SPACE:
+                processOperationEventByKey(Bs.getValue());
+                break;
+            case DELETE:
+                processOperationEventByKey(CE.getValue());
+                break;
+            case ESCAPE:
+                processOperationEventByKey(CL.getValue());
+                break;
+            default:
         }
     }
 
@@ -115,6 +110,7 @@ public class Controller {
             return;
         }
 
+        updateSuperscript(operator);
         updateCurrentNumber();
 
         try {
@@ -153,12 +149,19 @@ public class Controller {
         setOutputText(text);
 
         newNumber = false;
+        superscript.setText(ViewHelper.updateSuperscript());
+    }
+
+    private void processOperationEventByKey(final String buttonText) {
+        processOperationEvent(new ActionEvent(new Button(buttonText), output));
     }
 
     private void processOperation(final Operator operator) {
         switch (operator.getType()) {
             case Equal:
                 model.processEqual();
+                ViewHelper.clearSuperscript();
+                superscript.setText("");
                 break;
             case Math:
                 model.processMathOperator(operator);
@@ -168,6 +171,8 @@ public class Controller {
                 break;
             case Percent:
                 model.processPercent();
+                final BigDecimal percent = model.getCurrentNumber();
+                superscript.setText(ViewHelper.updateSuperscript(percent));
                 break;
             case Negate:
                 model.processNegate();
@@ -203,9 +208,15 @@ public class Controller {
             reset(false);
         }
 
-        if (op == C) {
+        if (op == CL) {
             reset(true);
         }
+    }
+
+    private void updateSuperscript(final Operator op) {
+        final String currentNumber = output.getText();
+        final String result = ViewHelper.updateSuperscript(op, currentNumber, newNumber, longSuperscript);
+        superscript.setText(result);
     }
 
     private void updateCurrentNumber() {
@@ -235,6 +246,11 @@ public class Controller {
     }
 
     private void reset(final boolean full) {
+        if (full || wasError) {
+            ViewHelper.clearSuperscript();
+            superscript.setText("");
+        }
+
         model.reset(full);
         wasError = false;
         newNumber = true;

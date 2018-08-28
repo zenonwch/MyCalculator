@@ -15,7 +15,7 @@ public enum Operator {
     Eq("=", Equal),
 
     Bs("⬅", Clear),
-    C("C", Clear),
+    CL("C", Clear),
     CE("CE", Clear),
 
     Perc("%", Percent),
