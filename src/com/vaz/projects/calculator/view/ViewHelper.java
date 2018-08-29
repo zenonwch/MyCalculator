@@ -26,7 +26,6 @@ public final class ViewHelper {
     private static final String DEFAULT_OUTPUT_TEXT = "0";
     private static final String DEFAULT_SUPERSCRIPT_TEXT = "";
 
-    private static final int MAX_SUPERSCRIPT_LENGTH = 26;
     private static final int DIGIT_THRESHOLD = 12;
     private static final int STRING_THRESHOLD = 16;
 
@@ -90,18 +89,8 @@ public final class ViewHelper {
     }
 
     public static String updateSuperscript(final Operator op, final String currentNumber,
-                                           final boolean isNew, final Text longSuperscript) {
-        String result = calculateSuperscript(op, currentNumber, isNew);
-        final int resLength = currentSuperscriptText.length();
-
-        if (resLength > MAX_SUPERSCRIPT_LENGTH) {
-            longSuperscript.setVisible(true);
-            result = result.substring(resLength - MAX_SUPERSCRIPT_LENGTH + 1);
-        } else {
-            longSuperscript.setVisible(false);
-        }
-
-        return result;
+                                           final boolean isNew) {
+        return calculateSuperscript(op, currentNumber, isNew);
     }
 
     public static String updateSuperscript() {

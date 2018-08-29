@@ -22,6 +22,7 @@ import static javafx.scene.input.KeyCode.*;
 
 public class Controller {
     private static final Pattern NON_DIGIT = Pattern.compile("^0\\.|\\.");
+    private static final int MAX_SUPERSCRIPT_LENGTH = 26;
 
     public static final int MAX_DIGIT_NUMBER = 16;
 
@@ -149,7 +150,7 @@ public class Controller {
         setOutputText(text);
 
         newNumber = false;
-        superscript.setText(ViewHelper.updateSuperscript());
+        setSuperscriptText(ViewHelper.updateSuperscript());
     }
 
     private void processOperationEventByKey(final String buttonText) {
@@ -161,7 +162,7 @@ public class Controller {
             case Equal:
                 model.processEqual();
                 ViewHelper.clearSuperscript();
-                superscript.setText("");
+                setSuperscriptText("");
                 break;
             case Math:
                 model.processMathOperator(operator);
@@ -172,7 +173,7 @@ public class Controller {
             case Percent:
                 model.processPercent();
                 final BigDecimal percent = model.getCurrentNumber();
-                superscript.setText(ViewHelper.updateSuperscript(percent));
+                setSuperscriptText(ViewHelper.updateSuperscript(percent));
                 break;
             case Negate:
                 model.processNegate();
@@ -215,8 +216,8 @@ public class Controller {
 
     private void updateSuperscript(final Operator op) {
         final String currentNumber = output.getText();
-        final String result = ViewHelper.updateSuperscript(op, currentNumber, newNumber, longSuperscript);
-        superscript.setText(result);
+        final String result = ViewHelper.updateSuperscript(op, currentNumber, newNumber);
+        setSuperscriptText(result);
     }
 
     private void updateCurrentNumber() {
@@ -245,10 +246,24 @@ public class Controller {
         setOutputText(valueStr);
     }
 
+    private void setSuperscriptText(final String value) {
+        final int resLength = value.length();
+        String result = value;
+
+        if (resLength > MAX_SUPERSCRIPT_LENGTH) {
+            longSuperscript.setVisible(true);
+            result = value.substring(resLength - MAX_SUPERSCRIPT_LENGTH + 1);
+        } else {
+            longSuperscript.setVisible(false);
+        }
+
+        superscript.setText(result);
+    }
+
     private void reset(final boolean full) {
         if (full || wasError) {
             ViewHelper.clearSuperscript();
-            superscript.setText("");
+            setSuperscriptText("");
         }
 
         model.reset(full);

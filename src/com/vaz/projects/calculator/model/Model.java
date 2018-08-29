@@ -10,6 +10,10 @@ import static com.vaz.projects.calculator.model.Operator.*;
 import static com.vaz.projects.calculator.model.OperatorType.Math;
 
 public class Model {
+    private static final BigDecimal MAX_VALUE = new BigDecimal("1.E+10000");
+    private static final BigDecimal MIN_VALUE = new BigDecimal("1.E-10000");
+
+    private static final String OVERFLOW = "Overflow";
     public static final String ERR_UNDEFINED = "Result is undefined";
     public static final String ERR_DIV_BY_ZERO = "Cannot divide by zero";
 
@@ -152,6 +156,7 @@ public class Model {
                 throw new IllegalArgumentException("Calculate method. Incorrect operator: " + operator);
         }
 
+        checkOverflow(result);
         return result.stripTrailingZeros().toPlainString();
     }
 
@@ -163,7 +168,9 @@ public class Model {
                 if (BigDecimal.ZERO.compareTo(value) > 0) {
                     throw new ArithmeticException("Invalid input");
                 }
-                return sqrt(value, new MathContext(100)).stripTrailingZeros().toPlainString();
+                final BigDecimal result = sqrt(value, new MathContext(100));
+                checkOverflow(result);
+                return result.stripTrailingZeros().toPlainString();
             default:
                 throw new IllegalArgumentException("Transform method. Incorrect operator: " + operator);
         }
@@ -179,5 +186,12 @@ public class Model {
         }
 
         throw new ArithmeticException(ERR_DIV_BY_ZERO);
+    }
+
+    private void checkOverflow(final BigDecimal number) {
+        if (number.abs().compareTo(MAX_VALUE) >= 0
+                || number.abs().compareTo(MIN_VALUE) <= 0) {
+            throw new ArithmeticException(OVERFLOW);
+        }
     }
 }
