@@ -1,7 +1,9 @@
 package com.vaz.projects.calculator;
 
 import com.vaz.projects.calculator.controller.Controller;
+import com.vaz.projects.calculator.view.menu.MenuFactory;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -38,7 +40,7 @@ public class Main extends Application {
         final MenuBar menuBar = new MenuBar();
         final Menu menuView = new Menu("View");
         final Menu menuEdit = new Menu("Edit");
-        final Menu menuHelp = new Menu("Help");
+        final Menu menuHelp = MenuFactory.createHelpMenu(primaryStage);
 
         menuBar.getMenus().addAll(menuView, menuEdit, menuHelp);
         ((VBox) root).getChildren().add(0, menuBar);
@@ -48,6 +50,7 @@ public class Main extends Application {
         primaryStage.getIcons().add(icon);
 
         primaryStage.show();
+        primaryStage.setOnCloseRequest(e -> Platform.exit());
     }
 
     public static void main(final String[] args) {
